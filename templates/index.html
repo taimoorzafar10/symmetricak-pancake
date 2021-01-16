@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Search Gists</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    .avatar {
+      vertical-align: middle;
+      width: 30px;
+      height: 30px;
+      border-radius: 30%;
+    }
+    .ScrollStyle {
+      height: 500px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Search Gists</h2>
+  <p>Enter a username and get the full list of public Gists for that user</p>
+  <form action="/gists" method="post">
+    <div class="row">
+      <div class="col">
+        <input type="text" class="form-control" id="username" placeholder="Enter username" name="username" required>
+      </div>
+      <div class="col">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+<br>
+
+{% block content %}
+  {% if available_gists %}
+  <div class="container">
+    <h2>Available Gists of user</h2>
+    <div id="accordion" class="ScrollStyle">
+      {% for gist in available_gists %}
+      <div class="card">
+        <div class="card-header">
+          <a class="card-link" data-toggle="collapse" href="#collapse{{gist.id}}">
+            <img src="{{gist.owner_avatar_url}}" alt="Avatar" class="avatar">
+            {{gist.id}}
+          </a>
+        </div>
+        <div id="collapse{{gist.id}}" class="collapse hide" data-parent="#accordion">
+          <div class="card-body">
+            {{"Gist ID: "+ gist.id}}
+            <br>
+            {{"Owner: "+ gist.owner_login}}
+            <br>
+            <h5>Files</h5>
+            <div class="col-md-4 list-group overflow-auto">
+            {% for file in gist.files %}
+              <a href={{file.raw_url}} class="list-group-item list-group-item-action">
+                {{ file.filename }}
+                <span class="badge badge-primary badge-pill">{{ file.type }}</span>
+              </a>
+            {% endfor %}
+            </div>
+            <br>
+            <h5>Forks by users</h5>
+            <div class="col-md-4 list-group overflow-auto">
+              {% for forks in gist.latest_forks %}
+                {% for  username, user_avatar in forks.items() %}
+                  <a href="#" class="list-group-item list-group-item-action">
+                    <img src="{{ user_avatar }}" alt="Avatar" class="avatar">
+                    {{ username }}
+                  </a>
+                {% endfor %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %} 
+    </div>
+  </div>
+  {% endif %}
+{% endblock content %}
+
+</body>
+</html>
